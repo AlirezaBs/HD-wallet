@@ -1,0 +1,118 @@
+---
+description: Meta-rule for writing standardized high-quality Cursor .mdc rules in this repo
+globs: [".cursor/rules/**/*"]
+alwaysApply: false
+---
+
+# Creating Cursor rules
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** root [`AGENTS.md`](../../AGENTS.md) · [`docs/AGENTS.md`](../../docs/AGENTS.md)
+
+Use this file when adding or revising `.cursor/rules/*.mdc`. Nested and root `AGENTS.md` remain authoritative; `.mdc` files reinforce only.
+
+---
+
+## Frontmatter (required)
+
+Every rule file must start with YAML frontmatter that includes all three fields:
+
+| Field | Purpose |
+| ----- | ------- |
+| `description` | Short, searchable summary of when the rule applies |
+| `globs` | File patterns that auto-attach the rule (string or YAML array) |
+| `alwaysApply` | `true` only for genuinely universal rules; otherwise `false` |
+
+```yaml
+---
+description: Clear one-line purpose
+globs: path/to/**/*
+alwaysApply: false
+---
+```
+
+Multi-pattern globs prefer a YAML array:
+
+```yaml
+globs: ["packages/core/**/*", "apps/web/src/workers/**/*"]
+```
+
+When `alwaysApply: true`, omit `globs` (they are ignored). Do not invent undocumented frontmatter keys.
+
+---
+
+## Writing standards
+
+- Keep rules short and actionable — prefer under ~50 lines of body.
+- Prefer **negative constraints** (what NOT to do) over vague aspirations.
+- Avoid fluffy language ("be thoughtful", "try to", "generally prefer excellence").
+- One concern per file; link to the matching root/nested `AGENTS.md` instead of copying full policy.
+- Never put critical security policy only in `.mdc` — reinforce root `AGENTS.md`.
+- Include this authority line in every new rule:
+
+> This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+---
+
+## Pattern anchors (required for coding-pattern rules)
+
+When the rule teaches a specific coding pattern, include at least one **BAD** and one **GOOD** snippet.
+
+### BAD — vague, no anchors, weak frontmatter
+
+```markdown
+---
+description: Write nice React
+alwaysApply: true
+---
+
+Try to make components clean and reusable when possible.
+```
+
+### GOOD — scoped, negative constraints, BAD/GOOD anchors
+
+````markdown
+---
+description: Web components must reuse shadcn primitives
+globs: apps/web/src/components/**/*
+alwaysApply: false
+---
+
+# UI primitives
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+- Do not introduce a new UI library.
+- Do not hand-roll buttons/inputs when `components/ui` already provides them.
+
+### BAD
+
+```tsx
+export function PrimaryButton(props: { label: string }) {
+  return <button className="rounded bg-blue-500 px-3 py-2">{props.label}</button>;
+}
+```
+
+### GOOD
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+export function PrimaryButton(props: { label: string }) {
+  return <Button>{props.label}</Button>;
+}
+```
+````
+
+---
+
+## Body format
+
+Use clear Markdown structure for scanability:
+
+1. `#` title matching the concern
+2. Authority / AGENTS link (one short paragraph)
+3. `##` sections with bullet lists for constraints
+4. `### BAD` / `### GOOD` for pattern rules
+5. No essay prose; no duplicated full operating protocol or report templates

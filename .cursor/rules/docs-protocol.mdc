@@ -1,0 +1,38 @@
+---
+description: Documentation and agent-rule consistency requirements
+globs: ["docs/**/*", "AGENTS.md", "**/AGENTS.md", ".cursor/rules/**/*"]
+alwaysApply: false
+---
+
+# Docs and rule consistency
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** [`docs/AGENTS.md`](../../docs/AGENTS.md) · root [`AGENTS.md`](../../AGENTS.md)
+
+## Do not
+
+- Update docs when code was touched but behavior/architecture/security/format/status did not change
+- Bump vault envelope `version` for additive payload fields with safe defaults
+- Mark ROADMAP items complete without explicit permission
+- Rewrite entire docs when a section update suffices
+- Weaken root security in AGENTS or `.mdc` text
+- Leave critical policy only in `.cursor/rules` — reinforce root/nested `AGENTS.md`
+
+Follow [`docs/VAULT_FORMAT.md`](../../docs/VAULT_FORMAT.md) for envelope vs payload rules.
+
+## Pattern anchors
+
+### BAD
+
+```markdown
+<!-- Unprompted ROADMAP rewrite + false complete -->
+- [x] Hardware wallet support
+```
+
+### GOOD
+
+```markdown
+<!-- Scoped note only after approved behavior change -->
+Backward-compatible additive payload fields do not require an envelope version bump.
+```

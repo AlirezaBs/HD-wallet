@@ -1,0 +1,54 @@
+---
+description: Web onboarding, unlock, and vault lifecycle routing guards
+globs:
+  - apps/web/src/routes/onboarding/**/*
+  - apps/web/src/routes/unlock/**/*
+  - apps/web/src/components/OnboardingGuard.tsx
+  - apps/web/src/components/WalletGuard.tsx
+  - apps/web/src/AppRouter.tsx
+  - apps/web/src/hooks/useVaultAccess.ts
+  - apps/web/src/hooks/useVaultRoute.ts
+  - apps/web/src/lib/wallet-session.ts
+alwaysApply: false
+---
+
+# Onboarding and vault routing
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** [`apps/web/AGENTS.md`](../../apps/web/AGENTS.md) · [`security-invariants.mdc`](security-invariants.mdc) · [`core-and-worker.mdc`](core-and-worker.mdc)
+
+## Do not
+
+- Expose create/import setup UI when a vault already exists — redirect to `/unlock` or `/wallet`
+- Send backup flow to generic `/onboarding` when a vault exists — check vault and session first
+- Pass backup mnemonics via `sessionStorage`, URL params, or Zustand — use React Router `location.state` only
+- Use `loadVaultMetadata()` alone for routing decisions on the main thread — use `hasVault()` or `getVaultMetadata()` per [`core-and-worker.mdc`](core-and-worker.mdc)
+- Navigate to wallet routes after reset without `replace: true`
+
+## Pattern anchors
+
+### BAD
+
+```tsx
+useEffect(() => {
+  if (!mnemonic) navigate("/onboarding", { replace: true });
+}, [mnemonic]);
+```
+
+### GOOD
+
+```tsx
+useEffect(() => {
+  if (!mnemonic) {
+    void hasVault().then((exists) => {
+      if (!exists) {
+        navigate("/onboarding/create", { replace: true });
+        return;
+      }
+      const unlocked = useSessionStore.getState().isUnlocked;
+      navigate(unlocked ? "/wallet" : "/unlock", { replace: true });
+    });
+  }
+}, [mnemonic, navigate]);
+```

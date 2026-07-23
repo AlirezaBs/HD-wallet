@@ -1,0 +1,38 @@
+---
+description: Verified monorepo import paths and worker bundle alias
+globs:
+  - packages/core/**/*
+  - packages/stores/**/*
+  - apps/web/**/*
+alwaysApply: false
+---
+
+# Package imports
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** [`packages/core/AGENTS.md`](../../packages/core/AGENTS.md) · [`apps/web/AGENTS.md`](../../apps/web/AGENTS.md) · [`core-and-worker.mdc`](core-and-worker.mdc)
+
+## Do not
+
+- Import `cryptoWorkerService` through `@hd-wallet/core` in the worker bundle
+
+For core import style and UI-in-core bans, see [`core-and-worker.mdc`](core-and-worker.mdc). Stores may import public types and APIs from `@hd-wallet/core` only.
+
+Worker entry: [`apps/web/src/workers/crypto.worker.ts`](../../apps/web/src/workers/crypto.worker.ts).
+
+## Pattern anchors
+
+### BAD
+
+```ts
+// apps/web/src/workers/crypto.worker.ts
+import { cryptoWorkerService } from "@hd-wallet/core";
+```
+
+### GOOD
+
+```ts
+// apps/web/src/workers/crypto.worker.ts
+import { cryptoWorkerService } from "@hd-wallet/core-worker-service";
+```

@@ -1,0 +1,46 @@
+---
+description: Zustand store safety — no secrets, persistence limits
+globs: packages/stores/**/*
+alwaysApply: false
+---
+
+# Stores safety
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** [`packages/stores/AGENTS.md`](../../packages/stores/AGENTS.md) · root [`AGENTS.md`](../../AGENTS.md)
+
+## Do not
+
+- Store secrets or decrypted vault material in any Zustand store
+- Add fields named or equivalent to `FORBIDDEN_SESSION_KEYS`: `password`, `mnemonic`, `privateKey`, `encryptionKey`, `rawSeed`, `decryptedVault`
+- Persist `useSessionStore` (must stay in-memory)
+- Write key material to localStorage
+
+## Pattern anchors
+
+### BAD
+
+```ts
+type SessionState = {
+  mnemonic: string;
+  isUnlocked: boolean;
+};
+
+persist(createStore, { name: "session" });
+```
+
+### GOOD
+
+```ts
+type SessionState = {
+  isUnlocked: boolean;
+  activeAccountIndex: number;
+};
+
+// Session store: in-memory only — no persist() middleware
+export const useSessionStore = create<SessionState>(() => ({
+  isUnlocked: false,
+  activeAccountIndex: 0,
+}));
+```

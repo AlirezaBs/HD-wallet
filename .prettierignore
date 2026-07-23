@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+coverage
+.turbo
+.pnpm-store
+apps/web/dist
+apps/web/node_modules/.vite
+*.tsbuildinfo
+pnpm-lock.yaml

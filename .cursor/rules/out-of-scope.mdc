@@ -1,0 +1,28 @@
+---
+description: Features agents must not introduce without explicit approval
+alwaysApply: true
+---
+
+# Out of scope
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** root [`AGENTS.md`](../../AGENTS.md) §6 · [`docs/ROADMAP.md`](../../docs/ROADMAP.md)
+
+## Do not invent without explicit approval
+
+- Browser extension (`apps/extension`)
+- WalletConnect / EIP-1193 provider injection
+- Hardware wallet support
+- SPL token sends
+- NFT gallery
+- New state-management library (use Zustand)
+- Backend/server
+- Crypto-lib replacements (`@scure/*`, `@noble/*`, hash-wasm)
+
+## Also do not
+
+- Ban or remove already-shipped features
+- Assume ROADMAP checkboxes without reading [`docs/ROADMAP.md`](../../docs/ROADMAP.md)
+
+Stop and ask instead of generating the above.

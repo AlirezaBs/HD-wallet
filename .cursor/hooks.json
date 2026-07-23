@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/format-after-edit.mjs",
+        "timeout": 30,
+        "failClosed": false
+      }
+    ]
+  }
+}

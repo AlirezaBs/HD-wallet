@@ -1,0 +1,55 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build
+dist
+build
+*.tsbuildinfo
+.turbo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Keys and wallet artifacts
+*.pem
+*.key
+*.p12
+*.pfx
+*.vault
+*.wallet
+wallet-backup*
+
+# Test and coverage
+coverage
+playwright-report
+test-results
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*~
+
+# AI tooling
+.superpowers
+
+# Cursor — ignore local state, publish shared rules
+.cursor/*
+!.cursor/rules/
+!.cursor/skills/
+!.cursor/hooks/
+!.cursor/hooks.json
+!.cursor/README.md

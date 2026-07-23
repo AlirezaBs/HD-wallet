@@ -1,0 +1,54 @@
+---
+description: Core package and crypto worker boundaries and testing
+globs: ["packages/core/**/*", "apps/web/src/workers/**/*"]
+alwaysApply: false
+---
+
+# Core and worker
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** [`packages/core/AGENTS.md`](../../packages/core/AGENTS.md) · root [`AGENTS.md`](../../AGENTS.md)
+
+## Do not
+
+- Import React, Zustand, or DOM APIs in `@hd-wallet/core`
+- Decrypt vault or hold secrets outside worker memory
+- Change vault formats, derivation paths, or worker API contracts without an approved high-risk plan
+- Skip focused Vitest for crypto/vault/signing/persistence changes
+- Put new chain logic in React; use `packages/core/src/chains/`
+- Use `@/` imports in core; use relative `.js` imports
+- Branch vault existence on `loadVaultMetadata().hasVault` alone in new code
+
+Treat edits under `packages/core` and `apps/web/src/workers/` as high-risk escalation triggers.
+
+## Vault existence reads
+
+For existence checks and UI routing reads, use `getVaultMetadata()` or `hasVault()` from `vault/metadata.ts`. Reserve `loadVaultMetadata()` for storage internals. Keep `persistVault()` gated on reconciled metadata.
+
+## Pattern anchors
+
+### BAD
+
+```ts
+// packages/core — forbidden UI dependency
+import { useState } from "react";
+import { useSessionStore } from "@hd-wallet/stores";
+```
+
+### GOOD
+
+```ts
+// packages/core — pure crypto API, relative .js import
+import { decryptVault } from "../vault/cipher.js";
+
+export async function unlockVault(password: string, vault: EncryptedVault) {
+  return decryptVault(password, vault);
+}
+```
+
+## Tests
+
+- Run: `pnpm --filter @hd-wallet/core test`
+- Cover: KDF, encrypt/decrypt round-trip, derivation vectors, lock/unlock, wrong password
+- Add or update Vitest when changing `vault/metadata.ts`, `vault/storage.ts`, or `vault/vault-service.ts`

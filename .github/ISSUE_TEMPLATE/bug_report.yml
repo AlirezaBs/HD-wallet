@@ -1,0 +1,45 @@
+name: Bug report
+description: Report something that isn't working as expected
+title: "[BUG] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please do not include real mnemonics, passwords, or private keys.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See error
+    validations:
+      required: true
+  - type: dropdown
+    id: chain
+    attributes:
+      label: Chain
+      options:
+        - EVM
+        - Solana
+        - Both / N/A
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      placeholder: main @ abc1234
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Browser, OS, network mode (mainnet/testnet)

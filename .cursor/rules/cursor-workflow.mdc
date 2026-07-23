@@ -1,0 +1,28 @@
+---
+description: Cursor agent workflow — inspect, scope, validate, never commit
+alwaysApply: true
+---
+
+# Cursor workflow
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** root [`AGENTS.md`](../../AGENTS.md) §2
+
+## Do not
+
+- Edit before inspecting relevant files and listing target paths
+- Expand beyond approved scope or auto-start the next phase
+- Run `pnpm install` (or other installs) automatically
+- Start long background tasks without approval
+- Claim completion without inspecting the final diff
+- Claim a command passed without executing it
+- Commit, push, open/merge PRs, or use destructive Git commands
+- Silently change security boundaries, vault formats, derivation paths, worker contracts, or dependencies
+
+## Do
+
+- Report exact commands and exact results
+- Stop after the approved phase and wait for the next instruction
+
+When instructions conflict, follow the stricter security-preserving rule and report the conflict.

@@ -1,0 +1,40 @@
+---
+description: Non-negotiable HD wallet security invariants
+alwaysApply: true
+---
+
+# Security invariants
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** root [`AGENTS.md`](../../AGENTS.md) §3 · [`docs/SECURITY.md`](../../docs/SECURITY.md)
+
+## Do not
+
+- Put passwords, mnemonics, seeds, private keys, encryption keys, or decrypted vaults outside the crypto worker
+- Put secrets in React state, Zustand, localStorage, URLs, logs, clipboard history, analytics, or error reports
+- Sign or broadcast without `openSignConfirmDialog`
+- Silently change vault formats, KDF/crypto params, derivation paths, worker contracts, persistence, or security boundaries
+- Use `dangerouslySetInnerHTML` or `eval`
+- Put crypto logic in `apps/web` or React/Zustand deps in `@hd-wallet/core`
+- Persist the session store
+
+When instructions conflict, follow the stricter security-preserving rule and report the conflict.
+
+## Pattern anchors
+
+### BAD
+
+```ts
+// Main-thread / Zustand secret
+useSessionStore.setState({ mnemonic: words.join(" ") });
+console.log("unlocked", mnemonic);
+```
+
+### GOOD
+
+```ts
+// Worker unlock only; UI gets public state
+const publicState = await worker.unlockVault(password);
+useSessionStore.getState().setUnlocked(publicState);
+```

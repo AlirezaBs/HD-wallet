@@ -1,0 +1,45 @@
+---
+description: Web UI structure, state usage, and main-thread security
+globs: apps/web/**/*
+alwaysApply: false
+---
+
+# Web UI and state
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** [`apps/web/AGENTS.md`](../../apps/web/AGENTS.md) · root [`AGENTS.md`](../../AGENTS.md)
+
+## Do not
+
+- Handle secrets or keys on the main thread
+- Sign or broadcast without `openSignConfirmDialog`
+- Shortcut the send flow (build → preview → confirm → worker sign → optional broadcast)
+- Introduce a new UI or state-management library
+- Hand-roll controls when `components/ui` already provides them
+- Copy to clipboard without `copyWithClear`
+
+Worker entry under `apps/web/src/workers/` also follows [`core-and-worker.mdc`](core-and-worker.mdc).
+
+## Structure
+
+- Pages: `routes/` · features: `features/` · primitives: `components/ui/`
+- Zustand: session/settings/network/ui · React Query: RPC/prices
+
+## Pattern anchors
+
+### BAD
+
+```tsx
+const signed = await worker.signTransaction(tx);
+await broadcast(signed); // no user confirmation
+```
+
+### GOOD
+
+```tsx
+const confirmed = await openSignConfirmDialog({ summary });
+if (!confirmed) return;
+const signed = await worker.signTransaction(tx);
+await broadcast(signed);
+```

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm --filter @hd-wallet/core build
+      - run: pnpm --filter @hd-wallet/core test
+      - run: pnpm --filter @hd-wallet/stores build
+      - run: pnpm --filter @hd-wallet/stores test
+      - run: pnpm --filter @hd-wallet/web test
+      - run: pnpm typecheck
+      - run: pnpm --filter @hd-wallet/web build
+      - run: pnpm format:check
