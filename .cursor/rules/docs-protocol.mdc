@@ -1,6 +1,6 @@
 ---
-description: Documentation and agent-rule consistency requirements
-globs: ["docs/**/*", "AGENTS.md", "**/AGENTS.md", ".cursor/rules/**/*"]
+description: Documentation updates, post-task doc review, and agent-rule consistency
+globs: ["docs/**/*", "AGENTS.md", "**/AGENTS.md", ".cursor/rules/**/*", "README.md", "CONTRIBUTING.md"]
 alwaysApply: false
 ---
 
@@ -10,29 +10,59 @@ This Cursor rule supplements the repository AGENTS.md instructions. It may add s
 
 **Authority:** [`docs/AGENTS.md`](../../docs/AGENTS.md) · root [`AGENTS.md`](../../AGENTS.md)
 
+## When to update docs
+
+Update docs **only** when behavior, architecture, security guarantees, public APIs, schemas, setup, or project status **actually changed**. Do not update docs merely because a code file was touched.
+
+| Change type | Required doc update |
+| ----------- | ------------------- |
+| Vault schema change | [`VAULT_FORMAT.md`](../../docs/VAULT_FORMAT.md) |
+| New security surface | [`SECURITY.md`](../../docs/SECURITY.md), [`THREAT_MODEL.md`](../../docs/THREAT_MODEL.md) |
+| Architecture change | [`ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) |
+| Feature status | [`ROADMAP.md`](../../docs/ROADMAP.md) — mark complete **only** with explicit permission |
+
+Follow [`VAULT_FORMAT.md`](../../docs/VAULT_FORMAT.md) for envelope vs payload rules.
+
+## Post-task documentation review
+
+After completing an implementation task (before the final report), check whether these areas **need an update**. Update **only sections that changed** — never rewrite full documents for small diffs.
+
+| Area | Check | Typical files |
+| ---- | ----- | ------------- |
+| README | User-facing features, quick start, or doc links changed? | `README.md`, `docs/README.md` |
+| Architecture | Packages, data flow, crypto boundary, or UI layout changed? | `docs/ARCHITECTURE.md` |
+| Security assumptions | New trust boundary, storage surface, or signing flow? | `docs/SECURITY.md`, `docs/THREAT_MODEL.md` |
+| API / worker messages | Worker method names, payloads, or Comlink contract changed? | `packages/core` exports, nested `AGENTS.md`, `docs/VAULT_FORMAT.md` if persisted |
+| Folder structure | New routes, features, packages, or moved modules? | `docs/getting-started.md`, `docs/CONTRIBUTING.md` |
+| Environment variables | New env vars or config (even if optional)? | `README.md`, `docs/getting-started.md`, `.env.example` if added |
+| Testing instructions | New test commands, packages, or required setup? | `CONTRIBUTING.md`, package `AGENTS.md` |
+| Known limitations | New caveats, unsupported flows, or partial features? | `README.md` or scoped note in final report |
+| Migration notes | Breaking vault, API, or persisted format change? | `docs/VAULT_FORMAT.md` + migration section |
+
+If nothing in a row changed, **skip that doc**. Mention "no doc update required" in the final report.
+
 ## Do not
 
-- Update docs when code was touched but behavior/architecture/security/format/status did not change
-- Bump vault envelope `version` for additive payload fields with safe defaults
-- Mark ROADMAP items complete without explicit permission
 - Rewrite entire docs when a section update suffices
+- Mark ROADMAP items complete without explicit permission
+- Bump vault envelope `version` for additive payload fields with safe defaults
 - Weaken root security in AGENTS or `.mdc` text
 - Leave critical policy only in `.cursor/rules` — reinforce root/nested `AGENTS.md`
-
-Follow [`docs/VAULT_FORMAT.md`](../../docs/VAULT_FORMAT.md) for envelope vs payload rules.
+- Add documentation-only commits for trivial code edits (typos, formatting)
 
 ## Pattern anchors
 
 ### BAD
 
 ```markdown
-<!-- Unprompted ROADMAP rewrite + false complete -->
-- [x] Hardware wallet support
+<!-- Unprompted full rewrite after a one-line UI copy change -->
+Rewrote docs/ARCHITECTURE.md, docs/SECURITY.md, and ROADMAP.md
 ```
 
 ### GOOD
 
 ```markdown
-<!-- Scoped note only after approved behavior change -->
-Backward-compatible additive payload fields do not require an envelope version bump.
+<!-- Scoped update after worker contract change -->
+Updated docs/ARCHITECTURE.md § Crypto Boundary — added exportRecoveryPhrase to worker API list.
+No changes to README or ROADMAP.
 ```

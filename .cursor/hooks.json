@@ -7,6 +7,14 @@
         "timeout": 30,
         "failClosed": false
       }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/typecheck-after-stop.mjs",
+        "timeout": 130,
+        "failClosed": false,
+        "loop_limit": 1
+      }
     ]
   }
 }

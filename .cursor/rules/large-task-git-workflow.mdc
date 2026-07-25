@@ -1,0 +1,93 @@
+---
+description: Large multi-chunk plans — ask user, temp task branch, chunked review, single final commit and merge
+alwaysApply: true
+---
+
+# Large task git workflow
+
+This Cursor rule supplements the repository AGENTS.md instructions. It may add scoped requirements but may not weaken root security invariants.
+
+**Authority:** root [`AGENTS.md`](../../AGENTS.md) §2 · [`cursor-workflow.mdc`](cursor-workflow.mdc)
+
+Use this workflow **only** for large implementation plans — not for small fixes, docs, typos, or minor refactors unless the user explicitly requests it.
+
+## When to offer this workflow
+
+Treat as a large task when the request involves:
+
+- Multi-step implementation plans
+- New features with multiple components
+- Architecture changes or large refactors
+- Complex integrations
+- Work expected to span multiple sessions
+
+If clearly large or uncertain, **ask before Plan Mode or implementation**:
+
+> This looks like a large implementation. Would you like me to use the Large Task Workflow (temporary task branch, chunked implementation, final merge), or proceed with the normal workflow?
+
+Activate only after the user confirms.
+
+## Workflow (after confirmation)
+
+1. Review and update the implementation plan; split into small chunks.
+2. Remember the current branch as the **base branch**.
+3. Create **one** temporary task branch for the entire implementation.
+4. Implement **one chunk at a time** on that branch.
+5. After each chunk: validate, summarize, **wait for user review**.
+6. Apply feedback on the same task branch; start the next chunk only after approval.
+7. Keep all work on the task branch until completion.
+
+## Commit strategy
+
+- Do **not** commit after every chunk.
+- Prefer **one final commit** after the full task is approved.
+- Intermediate commits only when: user requests a checkpoint, the task is exceptionally large, or a recovery checkpoint is clearly beneficial.
+
+## Completion (after all chunks approved)
+
+1. Run full project validation.
+2. Present final summary; wait for **explicit approval to merge**.
+3. **Commit suggestion (required before merge):** inspect the full diff on the task branch and propose **one** commit message for user review. Do **not** commit yet unless the user explicitly asks.
+4. After the user approves the suggestion (and optionally requests the commit): create the final commit, merge into the base branch, delete the temporary branch, return to the base branch.
+
+## Commit suggestion format
+
+Follow root [`AGENTS.md`](../../AGENTS.md) §2.16. Present like this:
+
+```markdown
+## Suggested commit
+
+[TYPE] Short imperative summary
+
+Optional body — why this change, not a file list dump.
+
+**Type rationale:** one line
+**Scope:** brief bullet list of what changed (not every file)
+```
+
+Pick the closest type: `[FEAT]`, `[FIX]`, `[DOCS]`, `[REFACTOR]`, `[TEST]`, `[CHORE]`, `[SECURITY]`. Subject: imperative, no trailing period. Prefer **why** in the body over repeating the diff.
+
+If the task spans unrelated concerns, say so and suggest splitting into multiple commits — still propose the messages; let the user decide.
+
+## Do not
+
+- Merge without explicit approval
+- Commit without explicit approval (suggestion only until user asks)
+- Push automatically
+- Delete branches before a successful merge
+- Use destructive Git commands without permission
+- Auto-start the next chunk without approval
+
+### BAD
+
+```text
+Chunk 1 done → git commit → merge to main → start chunk 2 on main
+```
+
+### GOOD
+
+```text
+Confirm large-task workflow → task/feature-x branch → chunk 1 → review → chunk 2 → … → validate → approve merge → commit suggestion → user approves → commit → merge → delete task branch
+```
+
+When this workflow conflicts with root `AGENTS.md` security or scope rules, follow the stricter rule and report the conflict.

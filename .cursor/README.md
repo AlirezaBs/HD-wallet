@@ -13,7 +13,7 @@ Project-local Cursor rules, skills, and hooks for HD Wallet. Authoritative contr
 
 ## Rules
 
-- **Always apply:** `cursor-workflow`, `security-invariants`, `out-of-scope`
+- **Always apply:** `cursor-workflow`, `security-invariants`, `out-of-scope`, `large-task-git-workflow`
 - **Scoped:** package/core, web UI, stores, docs, onboarding routing, package boundaries
 - **Meta:** `create-rules.mdc` — format for new `.mdc` files
 
@@ -23,15 +23,17 @@ When adding a rule: one concern per file, under ~50 lines, reference `AGENTS.md`
 
 Invoke by name in chat (e.g. “use `hd-wallet-onboarding-debug`”). Skills are workflows, not permanent constraints.
 
-| Skill                        | Use when                                                     |
-| ---------------------------- | ------------------------------------------------------------ |
-| `hd-wallet-onboarding-debug` | Unlock/onboarding/reset/vault-exists routing bugs            |
-| `hd-wallet-security-review`  | Reviewing crypto, worker, vault, signing, or session changes |
-| `hd-wallet-feature-delivery` | Scoped feature implementation across the monorepo            |
+| Skill                         | Use when                                                     |
+| ----------------------------- | ------------------------------------------------------------ |
+| `hd-wallet-onboarding-debug`  | Unlock/onboarding/reset/vault-exists routing bugs            |
+| `hd-wallet-security-review`   | Reviewing crypto, worker, vault, signing, or session changes |
+| `hd-wallet-feature-delivery`  | Scoped feature implementation across the monorepo            |
+| `hd-wallet-dependency-review` | Before installing or upgrading npm/pnpm packages             |
 
 ## Hooks
 
 - `afterFileEdit` → `hooks/format-after-edit.mjs` (Prettier on changed supported files only)
+- `stop` → `hooks/typecheck-after-stop.mjs` (runs `pnpm typecheck` once after a task when TS/config files changed; not on every edit)
 
 Do not add hooks that run the full test suite, Playwright, or `pnpm install` on every edit.
 
