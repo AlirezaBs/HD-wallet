@@ -36,6 +36,8 @@ export function CreateWalletPage() {
     } catch (err) {
       setError(getErrorMessage(err, "Failed to create wallet"));
     } finally {
+      setPassword("");
+      setConfirm("");
       setLoading(false);
     }
   };

@@ -16,6 +16,7 @@ export function SettingsPage() {
   const autoLockMinutes = useSettingsStore((s) => s.autoLockMinutes);
   const setAutoLockMinutes = useSettingsStore((s) => s.setAutoLockMinutes);
   const activeChainFamily = useSessionStore((s) => s.activeChainFamily);
+  const setActiveChainFamily = useSessionStore((s) => s.setActiveChainFamily);
   const activeEvmIndex = useSessionStore((s) => s.activeEvmAccountIndex);
   const activeSolanaIndex = useSessionStore((s) => s.activeSolanaAccountIndex);
   const [message, setMessage] = useState("");
@@ -41,7 +42,10 @@ export function SettingsPage() {
     openSignConfirmDialog({
       description:
         "Confirm you want to sign this message with your private key.",
-      details: { message },
+      details: {
+        chain: activeChainFamily === "evm" ? "EVM" : "Solana",
+        message,
+      },
       onConfirm: async () => {
         if (activeChainFamily === "evm") {
           const sig = await worker.signEvmMessage({
@@ -102,9 +106,31 @@ export function SettingsPage() {
       <Card>
         <CardContent className="pt-4 space-y-3">
           <h3 className="text-sm font-medium">Sign Message</h3>
+          <div className="space-y-2">
+            <Label htmlFor="message-signing-chain">Chain</Label>
+            <select
+              id="message-signing-chain"
+              className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+              value={activeChainFamily}
+              onChange={(e) => {
+                setActiveChainFamily(
+                  e.target.value === "solana" ? "solana" : "evm",
+                );
+                setSignResult("");
+              }}
+            >
+              <option value="evm">EVM</option>
+              <option value="solana">Solana</option>
+            </select>
+          </div>
+          <Label htmlFor="message-to-sign">Message</Label>
           <Input
+            id="message-to-sign"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              setMessage(e.target.value);
+              setSignResult("");
+            }}
             placeholder="Message to sign"
           />
           <Button

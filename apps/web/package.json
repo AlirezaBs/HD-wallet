@@ -30,7 +30,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.1",
+    "react-router-dom": "^7.18.3",
     "recharts": "^3.9.2",
     "tailwind-merge": "^2.6.0",
     "viem": "^2.21.54"

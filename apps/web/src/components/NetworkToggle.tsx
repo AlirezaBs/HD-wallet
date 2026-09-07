@@ -23,14 +23,23 @@ export function NetworkToggle() {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <Label className="text-xs text-muted-foreground">Networks</Label>
+          <Label
+            htmlFor="network-mode-toggle"
+            className="text-xs text-muted-foreground"
+          >
+            Networks
+          </Label>
           <div className="text-sm font-medium">
             {EVM_NETWORKS[evmMode].name} · {SOLANA_NETWORKS[solanaMode].name}
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Testnet</span>
-          <Switch checked={isMainnet} onCheckedChange={handleToggle} />
+          <Switch
+            id="network-mode-toggle"
+            checked={isMainnet}
+            onCheckedChange={handleToggle}
+          />
           <span className="text-xs text-muted-foreground">Mainnet</span>
         </div>
       </div>

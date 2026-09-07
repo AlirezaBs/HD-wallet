@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import * as ed25519 from "@noble/ed25519";
 import { ensureEd25519 } from "../crypto/ed25519-setup.js";
@@ -74,6 +74,30 @@ describe("assembleSignedLegacySolanaTransaction", () => {
 
     expect(parsed.verifySignatures()).toBe(true);
     expect(wireBytes.length).toBeGreaterThan(serializedMessage.length);
+  });
+
+  it("signs without a global Buffer in browser-like runtimes", async () => {
+    const serializedMessage = buildLegacyTransferMessage(from, to);
+    const signature = await signMessageForAccount(
+      TEST_MNEMONIC,
+      0,
+      serializedMessage,
+    );
+
+    vi.stubGlobal("Buffer", undefined);
+    try {
+      const wireBytes = assembleSignedLegacySolanaTransaction(
+        serializedMessage,
+        from,
+        signature,
+      );
+      const parsed = Transaction.from(wireBytes);
+
+      expect(wireBytes).toBeInstanceOf(Uint8Array);
+      expect(parsed.verifySignatures()).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("round-trips serialized transaction bytes", async () => {

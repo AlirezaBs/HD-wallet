@@ -20,8 +20,6 @@ const USDC_ICON =
   "https://assets.coingecko.com/coins/images/6319/small/usdc.png";
 const USDT_ICON =
   "https://assets.coingecko.com/coins/images/325/small/Tether.png";
-const RAY_ICON =
-  "https://assets.coingecko.com/coins/images/13928/small/PSigc4ie_400x400.jpg";
 
 export const NETWORK_TOKENS: Record<
   ChainFamily,
@@ -87,36 +85,6 @@ export const NETWORK_TOKENS: Record<
         iconUrl: SOL_ICON,
         isNative: true,
       },
-      {
-        id: "usdc",
-        name: "USD Coin",
-        symbol: "USDC",
-        coingeckoId: "usd-coin",
-        iconUrl: USDC_ICON,
-        isNative: false,
-        decimals: 6,
-        solanaMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      },
-      {
-        id: "usdt",
-        name: "Tether",
-        symbol: "USDT",
-        coingeckoId: "tether",
-        iconUrl: USDT_ICON,
-        isNative: false,
-        decimals: 6,
-        solanaMint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-      },
-      {
-        id: "ray",
-        name: "Raydium",
-        symbol: "RAY",
-        coingeckoId: "raydium",
-        iconUrl: RAY_ICON,
-        isNative: false,
-        decimals: 6,
-        solanaMint: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
-      },
     ],
     testnet: [
       {
@@ -125,15 +93,6 @@ export const NETWORK_TOKENS: Record<
         symbol: "SOL",
         iconUrl: SOL_ICON,
         isNative: true,
-      },
-      {
-        id: "usdc",
-        name: "USD Coin",
-        symbol: "USDC",
-        iconUrl: USDC_ICON,
-        isNative: false,
-        decimals: 6,
-        solanaMint: "4zMMC9srt5Ri5X14GPhXUKgMcU2PxuA6F59kE7MT9YB",
       },
     ],
   },

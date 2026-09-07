@@ -33,6 +33,12 @@ export function BackupPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (isBackupLocationState(location.state)) {
+      navigate(".", { replace: true, state: null });
+    }
+  }, [location.state, navigate]);
+
   const quizWords = useMemo(() => {
     if (!mnemonic) return [];
     const words = mnemonic.split(" ");
@@ -76,6 +82,7 @@ export function BackupPage() {
       setError("Incorrect words. Please try again.");
       return;
     }
+    setAnswers({});
     setMnemonic(null);
     navigate("/wallet", { replace: true });
   };

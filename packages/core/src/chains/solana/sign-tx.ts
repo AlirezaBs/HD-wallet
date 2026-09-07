@@ -1,4 +1,9 @@
-import { Message, PublicKey, Transaction } from "@solana/web3.js";
+import {
+  Message,
+  PublicKey,
+  Transaction,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import {
   InvalidSolanaMessageError,
   InvalidSolanaSignatureError,
@@ -64,23 +69,16 @@ export function assembleSignedLegacySolanaTransaction(
   }
 
   const message = parseLegacyMessage(serializedMessage);
-  const transaction = Transaction.populate(message);
+  const transaction = new VersionedTransaction(message);
   const publicKey = new PublicKey(signerAddress);
-  const signatureBuffer = getBufferFromBytes(signature);
-  transaction.addSignature(publicKey, signatureBuffer);
-  return transaction.serialize();
-}
+  transaction.addSignature(publicKey, signature);
+  const wireBytes = transaction.serialize();
 
-function getBufferFromBytes(
-  bytes: Uint8Array,
-): Parameters<Transaction["addSignature"]>[1] {
-  const bufferCtor = (
-    globalThis as { Buffer?: { from(data: Uint8Array): Uint8Array } }
-  ).Buffer;
-  if (!bufferCtor) {
-    throw new Error("Buffer is not available in this runtime");
+  if (!Transaction.from(wireBytes).verifySignatures()) {
+    throw new Error("Signature verification failed.");
   }
-  return bufferCtor.from(bytes) as Parameters<Transaction["addSignature"]>[1];
+
+  return wireBytes;
 }
 
 export function toSignedSolanaTransaction(

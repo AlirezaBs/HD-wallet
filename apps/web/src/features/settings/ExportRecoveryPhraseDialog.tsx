@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { WrongPasswordError } from "@hd-wallet/core";
 import { useSessionStore } from "@hd-wallet/stores";
@@ -15,7 +15,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { RecoveryPhraseGrid } from "@/components/RecoveryPhraseGrid";
 import { useWorkerClient } from "@/hooks/useWorkerClient";
 import { getErrorMessage } from "@/lib/errors";
-import { copyWithClear } from "@/lib/utils";
 
 type ExportRecoveryPhraseDialogProps = {
   open: boolean;
@@ -27,13 +26,11 @@ function resetSensitiveState(
   setMnemonic: (value: string | null) => void,
   setRevealed: (value: boolean) => void,
   setError: (value: string) => void,
-  setCopied: (value: boolean) => void,
 ) {
   setPassword("");
   setMnemonic(null);
   setRevealed(false);
   setError("");
-  setCopied(false);
 }
 
 export function ExportRecoveryPhraseDialog({
@@ -45,20 +42,23 @@ export function ExportRecoveryPhraseDialog({
   const [revealed, setRevealed] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const requestGenerationRef = useRef(0);
   const worker = useWorkerClient();
   const isUnlocked = useSessionStore((s) => s.isUnlocked);
 
   const handleClose = useCallback(() => {
-    resetSensitiveState(
-      setPassword,
-      setMnemonic,
-      setRevealed,
-      setError,
-      setCopied,
-    );
+    requestGenerationRef.current += 1;
+    resetSensitiveState(setPassword, setMnemonic, setRevealed, setError);
+    setLoading(false);
     onOpenChange(false);
   }, [onOpenChange]);
+
+  useEffect(
+    () => () => {
+      requestGenerationRef.current += 1;
+    },
+    [],
+  );
 
   useEffect(() => {
     if (open && !isUnlocked) {
@@ -68,14 +68,19 @@ export function ExportRecoveryPhraseDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const requestGeneration = requestGenerationRef.current + 1;
+    requestGenerationRef.current = requestGeneration;
+    const submittedPassword = password;
     setError("");
     setLoading(true);
+    setPassword("");
     try {
-      const phrase = await worker.exportRecoveryPhrase(password);
-      setPassword("");
+      const phrase = await worker.exportRecoveryPhrase(submittedPassword);
+      if (requestGenerationRef.current !== requestGeneration) return;
       setMnemonic(phrase);
       setRevealed(false);
     } catch (err) {
+      if (requestGenerationRef.current !== requestGeneration) return;
       if (
         err instanceof WrongPasswordError ||
         (err instanceof Error && err.message.includes("Wrong password"))
@@ -85,18 +90,9 @@ export function ExportRecoveryPhraseDialog({
         setError(getErrorMessage(err, "Failed to export recovery phrase"));
       }
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    if (!mnemonic) return;
-    try {
-      await copyWithClear(mnemonic);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setError("Failed to copy to clipboard.");
+      if (requestGenerationRef.current === requestGeneration) {
+        setLoading(false);
+      }
     }
   };
 
@@ -168,19 +164,9 @@ export function ExportRecoveryPhraseDialog({
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={handleCopy}
-                disabled={!revealed}
-              >
-                {copied ? "Copied" : "Copy phrase"}
-              </Button>
-              <Button className="flex-1" onClick={handleClose}>
-                Done
-              </Button>
-            </div>
+            <Button className="w-full" onClick={handleClose}>
+              Done
+            </Button>
           </div>
         )}
       </DialogContent>

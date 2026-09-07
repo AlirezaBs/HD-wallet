@@ -22,4 +22,18 @@ describe("session store", () => {
       "decryptedVault",
     ]);
   });
+
+  it("updates the active chain family", () => {
+    const originalChainFamily = useSessionStore.getState().activeChainFamily;
+
+    try {
+      useSessionStore.getState().setActiveChainFamily("solana");
+      expect(useSessionStore.getState().activeChainFamily).toBe("solana");
+
+      useSessionStore.getState().setActiveChainFamily("evm");
+      expect(useSessionStore.getState().activeChainFamily).toBe("evm");
+    } finally {
+      useSessionStore.getState().setActiveChainFamily(originalChainFamily);
+    }
+  });
 });

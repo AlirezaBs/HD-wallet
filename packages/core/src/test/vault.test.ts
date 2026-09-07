@@ -11,7 +11,7 @@ import {
   generateSalt,
 } from "../crypto/kdf.js";
 import { encryptVault, decryptVault } from "../vault/vault-service.js";
-import { WrongPasswordError } from "../crypto/errors.js";
+import { InvalidMnemonicError, WrongPasswordError } from "../crypto/errors.js";
 import { cryptoWorkerService } from "../crypto/worker-service.js";
 import {
   saveEncryptedVault,
@@ -192,6 +192,15 @@ describe("Worker locked state", () => {
     await expect(
       cryptoWorkerService.signEvmMessage({ accountIndex: 0, message: "hello" }),
     ).rejects.toThrow("Wallet is locked");
+  });
+
+  it("rejects an invalid mnemonic without creating or unlocking a vault", async () => {
+    await expect(
+      cryptoWorkerService.importVault("test-password", "invalid mnemonic"),
+    ).rejects.toThrow(InvalidMnemonicError);
+
+    expect(await loadEncryptedVault()).toBeNull();
+    expect(cryptoWorkerService.isUnlocked()).toBe(false);
   });
 });
 

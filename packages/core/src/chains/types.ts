@@ -58,16 +58,26 @@ export function getFaucetUrl(
   return config.faucetUrl ?? null;
 }
 
+function getExplorerEntityUrl(
+  config: NetworkConfig,
+  entity: "address" | "tx",
+  identifier: string,
+): string {
+  const url = new URL(config.explorerUrl);
+  const basePath = url.pathname.endsWith("/")
+    ? url.pathname.slice(0, -1)
+    : url.pathname;
+  url.pathname = `${basePath}/${entity}/${identifier}`;
+  return url.toString();
+}
+
 export function getExplorerAddressUrl(
   family: ChainFamily,
   mode: NetworkMode,
   address: string,
 ): string {
-  if (family === "evm") {
-    return `${EVM_NETWORKS[mode].explorerUrl}/address/${address}`;
-  }
-  const cluster = mode === "testnet" ? "?cluster=devnet" : "";
-  return `${SOLANA_NETWORKS[mode].explorerUrl}/address/${address}${cluster}`;
+  const config = family === "evm" ? EVM_NETWORKS[mode] : SOLANA_NETWORKS[mode];
+  return getExplorerEntityUrl(config, "address", address);
 }
 
 export function getExplorerTxUrl(
@@ -75,9 +85,6 @@ export function getExplorerTxUrl(
   mode: NetworkMode,
   hash: string,
 ): string {
-  if (family === "evm") {
-    return `${EVM_NETWORKS[mode].explorerUrl}/tx/${hash}`;
-  }
-  const cluster = mode === "testnet" ? "?cluster=devnet" : "";
-  return `${SOLANA_NETWORKS[mode].explorerUrl}/tx/${hash}${cluster}`;
+  const config = family === "evm" ? EVM_NETWORKS[mode] : SOLANA_NETWORKS[mode];
+  return getExplorerEntityUrl(config, "tx", hash);
 }

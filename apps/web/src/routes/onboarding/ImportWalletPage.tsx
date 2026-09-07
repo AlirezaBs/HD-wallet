@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { isValidMnemonic, hasVault, VaultExistsError } from "@hd-wallet/core";
+import {
+  hasVault,
+  InvalidMnemonicError,
+  VaultExistsError,
+} from "@hd-wallet/core";
 import { useWorkerClient } from "@/hooks/useWorkerClient";
 import { getErrorMessage } from "@/lib/errors";
 import { validateWalletPassword } from "@/lib/password-validation";
@@ -22,10 +26,6 @@ export function ImportWalletPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!isValidMnemonic(mnemonic.trim())) {
-      setError("Invalid recovery phrase");
-      return;
-    }
     const passwordError = validateWalletPassword(password, confirm);
     if (passwordError) {
       setError(passwordError);
@@ -41,12 +41,22 @@ export function ImportWalletPage() {
       setUnlocked(state);
       navigate("/wallet", { replace: true });
     } catch (err) {
-      if (err instanceof VaultExistsError) {
+      if (
+        err instanceof InvalidMnemonicError ||
+        (err instanceof Error && err.name === "InvalidMnemonicError")
+      ) {
+        setError("Invalid recovery phrase");
+      } else if (
+        err instanceof VaultExistsError ||
+        (err instanceof Error && err.name === "VaultExistsError")
+      ) {
         setError("A wallet already exists. Unlock it or reset from Settings.");
       } else {
         setError(getErrorMessage(err, "Failed to import wallet"));
       }
     } finally {
+      setPassword("");
+      setConfirm("");
       setLoading(false);
     }
   };

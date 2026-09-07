@@ -56,7 +56,6 @@ export function UnlockPage() {
     try {
       const state = await worker.unlockVault(password);
       setUnlocked(state);
-      setPassword("");
       navigate("/wallet");
     } catch (err) {
       if (
@@ -82,6 +81,7 @@ export function UnlockPage() {
         setError(getErrorMessage(err, "Failed to unlock"));
       }
     } finally {
+      setPassword("");
       setLoading(false);
     }
   };

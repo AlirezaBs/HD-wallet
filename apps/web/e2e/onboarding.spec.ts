@@ -12,30 +12,41 @@ test("navigates to create wallet flow", async ({ page }) => {
   await expect(page.getByText("Create Password")).toBeVisible();
 });
 
-test("shows unlock when vault metadata exists", async ({ page }) => {
+test("repairs orphaned vault metadata and shows onboarding", async ({
+  page,
+}) => {
   await page.goto("/");
-  await page.evaluate(() => {
-    const req = indexedDB.open("hd-wallet", 1);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains("vault")) {
-        db.createObjectStore("vault");
-      }
-    };
-    req.onsuccess = () => {
-      const db = req.result;
-      const tx = db.transaction("vault", "readwrite");
-      tx.objectStore("vault").put(
-        {
-          hasVault: true,
-          vaultVersion: 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        "metadata",
-      );
-    };
+  await page.evaluate(async () => {
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open("hd-wallet", 1);
+      request.onerror = () => reject(request.error);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains("vault")) {
+          db.createObjectStore("vault");
+        }
+      };
+      request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction("vault", "readwrite");
+        transaction.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+        transaction.objectStore("vault").put(
+          {
+            hasVault: true,
+            vaultVersion: 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          "metadata",
+        );
+      };
+    });
   });
   await page.reload();
-  await expect(page.getByText("Enter your password to unlock")).toBeVisible();
+  await expect(page.getByText("Welcome to HD Wallet")).toBeVisible();
 });
